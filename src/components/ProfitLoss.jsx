@@ -185,26 +185,32 @@ export default function ProfitLoss() {
           <div className="pl-slider-group">
             <div className="pl-slider-header">
               <span className="pl-slider-label">일 평균 주문수</span>
-              <span className="pl-slider-value" style={{ color: 'var(--primary)' }}>{dailyOrders}건</span>
+              <div className="pl-input-wrap">
+                <input type="number" min={0} value={dailyOrders} onChange={e => setDailyOrders(Math.max(0, +e.target.value || 0))} className="pl-number-input primary" />
+                <span className="pl-input-unit">건</span>
+              </div>
             </div>
-            <input type="range" min={5} max={70} value={dailyOrders} onChange={e => setDailyOrders(+e.target.value)} className="pl-range primary" />
-            <div className="pl-slider-range"><span>5건</span><span>70건</span></div>
+            <input type="range" min={0} max={Math.max(200, dailyOrders)} value={dailyOrders} onChange={e => setDailyOrders(+e.target.value)} className="pl-range primary" />
           </div>
           <div className="pl-slider-group">
             <div className="pl-slider-header">
               <span className="pl-slider-label">포장 비율</span>
-              <span className="pl-slider-value" style={{ color: 'var(--teal)' }}>{packRatio}%</span>
+              <div className="pl-input-wrap">
+                <input type="number" min={0} max={100} value={packRatio} onChange={e => setPackRatio(Math.min(100, Math.max(0, +e.target.value || 0)))} className="pl-number-input teal" />
+                <span className="pl-input-unit">%</span>
+              </div>
             </div>
-            <input type="range" min={0} max={60} value={packRatio} onChange={e => setPackRatio(+e.target.value)} className="pl-range teal" />
-            <div className="pl-slider-range"><span>0%</span><span>60%</span></div>
+            <input type="range" min={0} max={100} value={packRatio} onChange={e => setPackRatio(+e.target.value)} className="pl-range teal" />
           </div>
           <div className="pl-slider-group">
             <div className="pl-slider-header">
               <span className="pl-slider-label">사이드 주문 비율</span>
-              <span className="pl-slider-value" style={{ color: 'var(--warning)' }}>{sideRate}%</span>
+              <div className="pl-input-wrap">
+                <input type="number" min={0} max={100} value={sideRate} onChange={e => setSideRate(Math.min(100, Math.max(0, +e.target.value || 0)))} className="pl-number-input warning" />
+                <span className="pl-input-unit">%</span>
+              </div>
             </div>
-            <input type="range" min={0} max={60} value={sideRate} onChange={e => setSideRate(+e.target.value)} className="pl-range warning" />
-            <div className="pl-slider-range"><span>0%</span><span>60%</span></div>
+            <input type="range" min={0} max={100} value={sideRate} onChange={e => setSideRate(+e.target.value)} className="pl-range warning" />
           </div>
         </div>
       </div>
@@ -483,16 +489,18 @@ export default function ProfitLoss() {
         </div>
         {/* BEP gauge */}
         <div className="pl-bep-gauge">
+          {(() => { const gaugeMax = Math.max(dailyOrders, parseFloat(calc.bepDaily), 50) * 1.3; return (<>
           <div className="pl-bep-gauge-label">
             <span>0건</span>
             <span style={{ color: 'var(--warning)', fontWeight: 600 }}>BEP {calc.bepDaily}건</span>
-            <span>70건</span>
+            <span>{Math.round(gaugeMax)}건</span>
           </div>
           <div className="pl-bep-gauge-track">
-            <div className="pl-bep-gauge-bep" style={{ left: `${(parseFloat(calc.bepDaily) / 70 * 100).toFixed(1)}%` }} />
+            <div className="pl-bep-gauge-bep" style={{ left: `${(parseFloat(calc.bepDaily) / gaugeMax * 100).toFixed(1)}%` }} />
             <div className={`pl-bep-gauge-fill ${dailyOrders >= parseFloat(calc.bepDaily) ? 'profit' : 'loss'}`}
-              style={{ width: `${(dailyOrders / 70 * 100).toFixed(1)}%` }} />
+              style={{ width: `${(dailyOrders / gaugeMax * 100).toFixed(1)}%` }} />
           </div>
+          </>); })()}
           <div className="pl-bep-gauge-current">현재: <strong>{dailyOrders}건</strong> {dailyOrders >= parseFloat(calc.bepDaily) ? '→ 흑자 구간' : '→ 적자 구간'}</div>
         </div>
         <div className="pl-alert info">
@@ -606,6 +614,23 @@ export default function ProfitLoss() {
         .pl-slider-header { display:flex; justify-content:space-between; margin-bottom:8px; }
         .pl-slider-label { font-size:12px; color:var(--text-light); }
         .pl-slider-value { font-size:15px; font-weight:700; }
+        .pl-input-wrap { display:flex; align-items:center; gap:2px; }
+        .pl-number-input {
+          width:64px; padding:4px 8px; font-size:15px; font-weight:700; text-align:right;
+          border:1px solid var(--border); border-radius:6px; background:var(--bg);
+          color:var(--text-dark); outline:none; transition:border-color 0.15s;
+          -moz-appearance:textfield;
+        }
+        .pl-number-input::-webkit-inner-spin-button,
+        .pl-number-input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+        .pl-number-input:focus { border-color:var(--primary); }
+        .pl-number-input.primary { color:var(--primary); }
+        .pl-number-input.primary:focus { border-color:var(--primary); }
+        .pl-number-input.teal { color:var(--teal); }
+        .pl-number-input.teal:focus { border-color:var(--teal); }
+        .pl-number-input.warning { color:var(--warning); }
+        .pl-number-input.warning:focus { border-color:var(--warning); }
+        .pl-input-unit { font-size:13px; font-weight:600; color:var(--text-light); }
         .pl-range { width:100%; height:6px; -webkit-appearance:none; appearance:none; border-radius:3px; outline:none; cursor:pointer; }
         .pl-range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%; cursor:pointer; border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
         .pl-range.primary { background:linear-gradient(90deg,var(--primary-light),var(--primary-light)); accent-color:var(--primary); }
